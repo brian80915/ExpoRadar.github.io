@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>曝險控制 v13.8.2 - 授權修復版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .font-mono { font-family: 'Roboto Mono', monospace; }
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .modal { transition: opacity 0.25s ease; }
+        .modal-active { overflow: hidden; }
+        .pulse-shadow { animation: pulse-shadow 2s infinite; }
+        @keyframes pulse-shadow {
+            0%, 100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.3), 0 0 20px rgba(244, 63, 94, 0.1); }
+            50% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.6), 0 0 30px rgba(244, 63, 94, 0.2); }
+        }
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #6366f1; cursor: pointer; margin-top: -6px; box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950/90 min-h-screen pb-20">
+
+<!-- 授權驗證模態框 (新增) -->
+<div id="authModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center z-[9999] bg-slate-950/90 backdrop-blur-md opacity-0 pointer-events-none">
+    <div class="glass w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl p-8 text-center border-indigo-500/50">
+        <h3 class="text-3xl font-bold text-yellow-400 mb-4"><i class="fa-solid fa-lock-open-file mr-2"></i> 系統授權驗證</h3>
+        <p class="text-sm text-slate-400 mb-6">請輸入專屬授權碼以解鎖功能。</p>
+        <input type="text" id="authCodeInput" placeholder="請輸入授權碼" maxlength="4" class="w-full bg-slate-800 text-center text-2xl font-bold text-white p-3 rounded-lg border-2 border-slate-700 focus:border-indigo-500 focus:outline-none tracking-widest font-mono">
+        <p id="authError" class="text-sm text-rose-400 mt-2 h-5"></p>
+        <button onclick="window.handleAuthSubmit()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold mt-4 hover:bg-indigo-500 transition-colors">
+            確認並進入系統
+        </button>
+    </div>
+</div>
+
+<div class="pt-12 pb-4 px-6 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+        <h1 class="text-lg font-bold tracking-wider text-white">
+            <i class="fa-solid fa-gauge-high text-yellow-400"></i> 曝險控制 v13.8.2
+        </h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <div id="cloudStatus" class="flex items-center gap-1 bg-slate-800 px-2 py-1 rounded-full border border-slate-700">
+            <div class="w-2 h-2 rounded-full bg-gray-500" id="cloudDot"></div>
+            <span class="text-[10px] text-gray-400 font-mono" id="cloudText">OFFLINE</span>
+        </div>
+        <button onclick="window.toggleModal('tutorialModal')" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fa-regular fa-circle-question text-xl"></i>
+        </button>
+    </div>
+</div>
+
+<div class="px-4 mt-6 max-w-lg mx-auto space-y-5">
+    <button onclick="window.openRiskModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl shadow-lg font-bold text-sm flex justify-center items-center gap-2 hover:from-blue-500 hover:to-indigo-500 transition-all">
+        <i class="fa-solid fa-clipboard-list"></i> 不知道如何設定？做個風險測驗
+    </button>
+
+    <div id="mainCard" class="glass rounded-2xl p-6 relative overflow-hidden shadow-2xl ring-1 ring-white/5">
+        <div id="exposureBg" class="absolute inset-0 bg-slate-800/10 transition-colors duration-500"></div>
+        <div class="relative z-10 text-center">
+            <p class="text-slate-400 text-xs font-medium uppercase tracking-widest mb-1">總曝險比例 (Total Exposure Ratio)</p>
+            <span id="riskBadge" class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-2 text-white bg-slate-600">載入中</span>
+            <div class="flex justify-center items-baseline gap-1">
+                <p id="exposureDisplay" class="text-6xl font-bold tracking-tighter text-white transition-colors duration-500">0%</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-6 border-t border-white/10 pt-4">
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">槓桿倍數</p>
+                    <p id="leverageRatioDisplay" class="text-xl font-bold text-yellow-400 font-mono">0.00x</p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 mb-1">淨資產總額</p>
+                    <p id="netWorthDisplay" class="text-xl font-bold text-emerald-400 font-mono">$0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 輸入區塊 (保持不變) -->
+    <div class="space-y-3">
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-emerald-500 shadow flex items-center justify-between">
+            <div class="flex flex-col"><label class="text-sm font-medium text-emerald-400 pl-1"><i class="fa-solid fa-sack-dollar w-5"></i> 可投資現金</label><p class="text-xs text-slate-500 pl-1">專款專用</p></div>
+            <input type="number" id="cash" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+        </div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-yellow-500 shadow space-y-2">
+            <div class="flex items-center justify-between"><label class="text-sm font-medium text-yellow-400 pl-1"><i class="fa-solid fa-bolt w-5"></i> 高波動/槓桿部位總市值(槓桿ETF、期貨)</label><input type="number" id="stock2x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-slate-400 text-xs">實際槓桿 (如: 2, 3)<input type="number" id="leverageMultiplier" value="2" min="1" step="0.5" placeholder="2" class="w-16 bg-slate-800/50 rounded p-1 text-center text-sm font-mono text-white focus:outline-none"></div>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-yellow-600 shadow flex items-center justify-between">
+            <label class="text-sm font-medium text-yellow-500 pl-1"><i class="fa-solid fa-layer-group w-5"></i> 一般股市總市值 (1X)</label><input type="number" id="stock1x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+        </div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-rose-500 shadow flex items-center justify-between relative overflow-hidden">
+            <div class="absolute inset-0 bg-rose-500/5 pointer-events-none"></div>
+            <div class="flex flex-col"><label class="text-sm font-medium text-rose-400 pl-1"><i class="fa-solid fa-hand-holding-dollar w-5"></i> 質押借貸</label><p class="text-xs text-slate-500 pl-1">股票擔保</p></div>
+            <input type="number" id="collateralLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+        </div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-rose-700 shadow flex items-center justify-between"><div class="flex flex-col"><label class="text-sm font-medium text-rose-300 pl-1"><i class="fa-solid fa-house-chimney-crack w-5"></i> 一般貸款</label><p class="text-xs text-slate-500 pl-1">信貸</p></div><input type="number" id="generalLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-500 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-400 pl-1"><i class="fa-solid fa-city w-5"></i> 房產市值</label><input type="number" id="realEstateMarketValue" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-700 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-300 pl-1"><i class="fa-solid fa-file-invoice-dollar w-5"></i> 房貸餘額</label><input type="number" id="mortgageBalance" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+    </div>
+    
+    <!-- 設定區塊 (保持不變) -->
+    <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-indigo-500 shadow space-y-3">
+        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">🎯 目標曝險 (%)</label><input type="number" id="targetExposure" value="130" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
+        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">± 容忍度 (%)</label><input type="number" id="tolerance" value="5" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">房產淨值納入淨資產分母<input type="checkbox" id="reToggle" class="h-4 w-4 rounded bg-slate-700 border-slate-600 text-indigo-500 focus:ring-indigo-500"></div>
+        <div class="flex items-center justify-between text-xs text-slate-400">房產淨值計入 1X 曝險 (激進)<input type="checkbox" id="reExpToggle" class="h-4 w-4 rounded bg-slate-700 border-slate-600 text-indigo-500 focus:ring-indigo-500"></div>
+    </div>
+
+    <!-- 數據管理 (保持不變) -->
+    <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-purple-500 shadow mt-5">
+        <h3 class="text-sm font-bold text-purple-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> 數據管理</h3>
+        <div class="grid grid-cols-3 gap-3">
+            <button id="btnSave" class="col-span-1 py-2 rounded-lg text-sm font-bold bg-purple-600 hover:bg-purple-500 transition-colors text-white"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> 雲端存檔</button>
+            <button id="btnBackup" class="col-span-1 py-2 rounded-lg text-sm font-bold bg-sky-600 hover:bg-sky-500 transition-colors text-white"><i class="fa-solid fa-download mr-1"></i> 匯出備份</button>
+            <label for="fileImport" class="col-span-1 py-2 rounded-lg text-sm font-bold bg-green-600 hover:bg-green-500 transition-colors text-white text-center cursor-pointer"><i class="fa-solid fa-file-import mr-1"></i> 匯入還原</label>
+            <input id="fileImport" type="file" accept="application/json" hidden>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2 text-center">支援 Google Firebase 雲端同步。</p>
+    </div>
+
+    <!-- 維持率卡片 (含自定義滑桿) (保持不變) -->
+    <div id="mtnCard" class="hidden glass rounded-xl p-4 border border-slate-700 shadow-lg space-y-3">
+        <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> 擔保品維持率</h3>
+            <span id="mtnBadge" class="text-[10px] px-2 py-0.5 rounded transition-colors duration-500 bg-slate-500 text-white">Safe</span>
+        </div>
+        <div class="flex items-baseline justify-between mb-1 text-white text-2xl font-bold font-mono">
+            <span id="mtnValue">0%</span>
+            <span class="text-sm text-slate-400">警戒線: 130%</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="mtnBar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p id="mtnDesc" class="text-xs text-slate-400 mt-2">目前維持率健康，無追繳風險。</p>
+        
+        <!-- NEW: Custom Drop Slider -->
+        <div class="bg-slate-800/50 rounded-lg p-3 mt-2 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-bold text-indigo-300 flex items-center gap-1"><i class="fa-solid fa-arrow-trend-down"></i> 模擬市場跌幅</label>
+                <span id="dropPercentDisplay" class="text-sm font-mono font-bold text-yellow-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">-20%</span>
+            </div>
+            <input type="range" id="dropSlider" min="5" max="50" step="5" value="20" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all">
+            <div class="flex justify-between text-[9px] text-slate-500 mt-1 px-1 font-mono">
+                <span>-5%</span>
+                <span>-25%</span>
+                <span>-50%</span>
+            </div>
+        </div>
+
+        <button id="simulateBtn" onclick="window.simulateRisk()" class="w-full py-2 rounded-lg text-sm font-bold bg-indigo-600 hover:bg-indigo-500 transition-colors mt-2 disabled:bg-slate-700 shadow-lg border border-indigo-500/50">
+            ✨ 執行壓力測試
+        </button>
+    </div>
+
+    <!-- LLM 分析結果 (保持不變) -->
+    <div id="llmResultCard" class="hidden glass rounded-xl p-4 border-l-4 border-indigo-500 shadow-xl mt-4">
+        <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-robot text-indigo-400"></i>
+            <h3 class="text-sm font-bold text-indigo-400">風險分析報告</h3>
+            <div id="llmLoader" class="hidden w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p id="llmResultText" class="text-sm text-slate-300 whitespace-pre-wrap">...</p>
+    </div>
+
+    <!-- 建議操作卡片 (保持不變) -->
+    <div id="actionCard" class="hidden mt-4 transform transition-all duration-500">
+        <div class="rounded-xl p-5 border-l-4 shadow-lg bg-slate-800 border-slate-600 relative">
+            <div class="flex justify-between items-start mb-2">
+                <h3 id="actionTitle" class="text-base font-bold text-white">分析中...</h3>
+                <span id="actionBadge" class="text-[10px] px-2 py-0.5 rounded text-white bg-slate-500">INIT</span>
+            </div>
+            <p id="actionDesc" class="text-sm text-slate-400 mb-3">...</p>
+            <div class="space-y-3 text-white">
+                <div class="bg-slate-950/50 rounded-lg p-3 flex justify-between items-center border border-slate-700/50"><p class="text-sm text-slate-400">1X 基準調整 (一般股票)</p><p id="actionAmount1x" class="font-bold text-lg font-mono text-white">$0</p></div>
+                <div class="bg-slate-950/50 rounded-lg p-3 flex justify-between items-center border border-slate-700/50"><p class="text-sm text-slate-400">N-X 基準調整 (槓桿部位)</p><p id="actionAmountNx" class="font-bold text-lg font-mono text-white">$0</p></div>
+            </div>
+            <p id="actionNote" class="text-[10px] text-slate-600 mt-3 italic">**注意:** 若現金為0且曝險100%，請改用「市值區間」進行操作。</p>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center text-[10px] text-slate-600">Logic v13.8.2 | Custom Drop Simulation</div>
+</div>
+
+<!-- Risk Modal (保持不變) -->
+<div id="riskModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+    <div class="modal-overlay absolute w-full h-full bg-black opacity-80" onclick="window.toggleModal('riskModal')"></div>
+    <div class="modal-container bg-slate-900 w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
+        <div class="modal-content py-4 text-left px-6">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700">
+                <p class="text-xl font-bold text-white">📋 風險承受度測驗</p>
+                <div class="modal-close cursor-pointer z-50" onclick="window.toggleModal('riskModal')"><i class="fa-solid fa-xmark text-slate-400"></i></div>
+            </div>
+            <div id="riskQuestions" class="my-5 space-y-6">
+                <div><p class="text-sm font-bold text-indigo-400 mb-2">1. 您的投資經驗有多久？</p><select id="q1" class="w-full bg-slate-800 text-white p-2 rounded border border-slate-600 focus:border-indigo-500 outline-none"><option value="0">少於 3 年 (新手)</option><option value="1">3 - 10 年 (有經驗)</option><option value="2">超過 10 年 (老手)</option></select></div>
+                <div><p class="text-sm font-bold text-indigo-400 mb-2">2. 如果股市下跌 20%，您會？</p><select id="q2" class="w-full bg-slate-800 text-white p-2 rounded border border-slate-600 focus:border-indigo-500 outline-none"><option value="0">感到恐慌，賣出止損</option><option value="1">按兵不動，觀望市場</option><option value="2">感到興奮，加碼買進</option></select></div>
+                <div><p class="text-sm font-bold text-indigo-400 mb-2">3. 您使用過槓桿產品嗎？</p><select id="q3" class="w-full bg-slate-800 text-white p-2 rounded border border-slate-600 focus:border-indigo-500 outline-none"><option value="0">從未使用，也不太了解</option><option value="1">偶爾使用，了解風險</option><option value="2">經常使用，是我的主要策略</option></select></div>
+                <div><p class="text-sm font-bold text-indigo-400 mb-2">4. 您偏好多久進行一次再平衡？</p><select id="q4" class="w-full bg-slate-800 text-white p-2 rounded border border-slate-600 focus:border-indigo-500 outline-none"><option value="0">只在市場劇烈波動 (寬鬆 / ±15%)</option><option value="1">讓市場自由波動 (適中 / ±10%)</option><option value="2" selected>追求極致紀律 (嚴謹 / ±5%)</option></select></div>
+                <div class="flex justify-end pt-2"><button onclick="window.analyzeRisk()" class="w-full px-4 py-3 bg-indigo-600 rounded-lg text-white font-bold hover:bg-indigo-500 transition-colors">分析結果</button></div>
+            </div>
+            <div id="riskResults" class="hidden my-5 text-center">
+                <div class="bounce-in mb-4 flex justify-center"><div id="resultIconContainer" class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center border-4 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.5)]"><i id="resultIcon" class="fa-solid fa-shield-halved text-4xl text-indigo-400"></i></div></div>
+                <h3 id="resultTitle" class="text-2xl font-bold text-white mb-2">穩健平衡型</h3>
+                <p id="resultDesc" class="text-sm text-slate-400 mb-6 px-2">...</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700"><p class="text-xs text-slate-500 mb-1">建議目標曝險</p><p id="resultTarget" class="text-xl font-bold text-white font-mono">80%</p></div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700"><p class="text-xs text-slate-500 mb-1">建議容忍範圍</p><p id="resultTolerance" class="text-xl font-bold text-white font-mono">±5%</p></div>
+                </div>
+                <button onclick="window.confirmRiskSettings()" class="w-full px-4 py-3 bg-green-600 rounded-lg text-white font-bold hover:bg-green-500 transition-colors mb-2"><i class="fa-solid fa-check mr-2"></i> 套用此設定</button>
+                <button onclick="window.resetRiskModal()" class="w-full px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">重新測驗</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tutorial Modal (保持不變) -->
+<div id="tutorialModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+    <div class="modal-overlay absolute w-full h-full bg-black opacity-80" onclick="window.toggleModal('tutorialModal')"></div>
+    <div class="modal-container bg-slate-900 w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
+        <div class="modal-content py-4 text-left px-6">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-700"><p class="text-xl font-bold text-white">📘 App 使用教學</p><div class="modal-close cursor-pointer z-50" onclick="window.toggleModal('tutorialModal')"><i class="fa-solid fa-xmark text-slate-400"></i></div></div>
+            <div class="my-4 space-y-4 text-sm text-slate-300 h-96 overflow-y-scroll pr-2 scrollbar-thin">
+                 <div class="space-y-2"><h3 class="text-indigo-400 font-bold">1. 核心概念</h3><p>本工具幫助您監控「投資總曝險」佔「總淨資產」的比例。透過控制這個比例，實現低買高賣的紀律投資。</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-indigo-400 font-bold">2. 欄位填寫指南</h3>
+                    <ul class="list-disc pl-4 space-y-1 text-slate-400 text-xs">
+                        <li><strong class="text-white">可投資現金：</strong>專款專用投資閒錢。</li>
+                        <li><strong class="text-white">高波動/槓桿部位(槓桿ETF、期貨)：</strong>如 TQQQ, 00675L。</li>
+                        <li><strong class="text-white">質押借貸：</strong>股票抵押借款，會計算維持率。</li>
+                        <li><strong class="text-white">一般貸款：</strong>信貸、其他貸款。</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                        <h3 class="text-indigo-400 font-bold">3. 房產設定</h3>
+                        <p>房產淨值會增加您的「淨資產分母」，讓槓桿比例看起來比較健康（生命週期投資法）。若您希望採取更激進的算法，可開啟「計入房產 1X 曝險」。</p>
+                    </div>
+                <div class="space-y-2">
+                        <h3 class="text-indigo-400 font-bold">4. 再平衡操作</h3>
+                        <p>當曝險比例低於或超過您設定的目標時，系統會建議您「買入」或「賣出」來進行再平衡。</p>
+                        <p>當總曝顯達100%,且現金為0時。改使用股票市值執行再平衡調整。通過使用價值區間而非單純的曝險比例,可以確保資產波動時能進行紀律性的低買高賣操作。</p>
+                    </div>
+                 <div class="space-y-2">
+                        <h3 class="text-indigo-400 font-bold">5. 容忍度 (Tolerance ±%)</h3>
+                        <p>這是您願意讓實際曝險比例偏離「目標曝險」的最大範圍。容忍度越低，再平衡的頻率就越高，越能維持嚴謹的紀律；容忍度越高，則交易次數越少，但允許曝險有更大的浮動變化。</p>
+                        <ul class="list-disc pl-4 space-y-1 text-slate-400 text-xs">
+                            <li><strong class="text-white">嚴謹紀律 (±5%)：</strong>追求精確，小幅偏離即調整。交易頻率高。</li>
+                            <li><strong class="text-white">適中平衡 (±10%)：</strong>讓市場自由波動，只在夠大偏差時才調整。交易頻率適中。</li>
+                            <li><strong class="text-white">寬鬆應對 (±15%)：</strong>交易極少，只在市場劇烈變動時才調整。交易頻率低。</li> 
+                     </div>     
+                <div class="space-y-2">
+                    <h3 class="text-indigo-400 font-bold">6. 雲端同步</h3>
+                    <p>資料會自動同步至雲端。即使關閉瀏覽器或更換裝置，只要登入相同環境即可存取。</p>
+                    <p>也可使用匯入/匯出功能，作為本地備份的存取方式。</p>
+                <div class="space-y-2"><h3 class="text-indigo-400 font-bold">7. 模擬跌幅</h3><p>新增滑桿功能，可自由設定 -5% 至 -50% 的市場跌幅情境，系統將自動計算對應的維持率變化與補繳保證金需求。</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-4 right-4 z-[9999] space-y-2"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    let auth, db, user, appId = 'default-app', isCloudEnabled = false;
+    const AUTH_CODE = '8888'; //
+    const STORAGE_KEY = 'exposure_v1';
+    const inputIds = ['cash', 'stock2x', 'stock1x', 'collateralLoan', 'generalLoan', 'realEstateMarketValue', 'mortgageBalance', 'leverageMultiplier', 'targetExposure', 'tolerance'];
+    const toggleIds = ['reToggle', 'reExpToggle'];
+    const STATE_FIELDS = [...inputIds, ...toggleIds];
+    let els = {}, btnSave, btnBackup, fileImport, cloudStatus, cloudDot, cloudText;
+
+    // Elements
+    function initEls() {
+        inputIds.forEach(id => els[id] = document.getElementById(id));
+        toggleIds.forEach(id => els[id] = document.getElementById(id));
+        btnSave = document.getElementById('btnSave'); btnBackup = document.getElementById('btnBackup'); fileImport = document.getElementById('fileImport');
+        cloudStatus = document.getElementById('cloudStatus'); cloudDot = document.getElementById('cloudDot'); cloudText = document.getElementById('cloudText');
+        
+        // Slider Listener
+        const dropSlider = document.getElementById('dropSlider');
+        const dropDisplay = document.getElementById('dropPercentDisplay');
+        if(dropSlider) {
+            dropSlider.addEventListener('input', (e) => {
+                dropDisplay.innerText = `-${e.target.value}%`;
+            });
+        }
+    }
+
+    // Logic
+    function snapshotState() {
+        const s = {};
+        STATE_FIELDS.forEach(id => { const el = els[id]; if (!el) return; s[id] = el.type === 'checkbox' ? !!el.checked : (el.value ?? ''); });
+        return s;
+    }
+    function applyState(state) {
+        if (!state) return;
+        STATE_FIELDS.forEach(id => { const el = els[id]; if (!el) return; if (id in state) { if (el.type === 'checkbox') el.checked = !!state[id]; else el.value = state[id]; } });
+        window.calculate();
+    }
+    function updateCloudStatus(status) {
+        if (status === 'connected') { cloudDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse"; cloudText.innerText = "CLOUD SYNC"; cloudText.className = "text-[10px] text-green-400 font-mono"; isCloudEnabled = true; }
+        else if (status === 'saving') { cloudDot.className = "w-2 h-2 rounded-full bg-yellow-500 animate-bounce"; cloudText.innerText = "SAVING..."; cloudText.className = "text-[10px] text-yellow-400 font-mono"; }
+        else { cloudDot.className = "w-2 h-2 rounded-full bg-gray-500"; cloudText.innerText = "LOCAL MODE"; cloudText.className = "text-[10px] text-gray-400 font-mono"; isCloudEnabled = false; }
+    }
+
+    // Storage
+    async function saveStateToStorage(isManual = false) {
+        const state = snapshotState();
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn("Local failed", e); }
+        if (isCloudEnabled && user && db) {
+            if (isManual) updateCloudStatus('saving');
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
+                await setDoc(docRef, state);
+                if (isManual) { showToast('✅ 雲端存檔成功！', 'success'); setTimeout(() => updateCloudStatus('connected'), 1000); }
+            } catch (e) { console.error("Cloud save failed", e); if (isManual) showToast('❌ 存檔失敗，僅保存於本機', 'error'); updateCloudStatus('error'); }
+        } else if (isManual) { showToast('⚠️ 僅保存於本機 (未連線)', 'info'); }
+    }
+    const autoSave = (fn, wait = 500) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
+    const debouncedSave = autoSave(() => saveStateToStorage(false), 1000);
+
+    // Firebase
+    async function initFirebase() {
+        try {
+            if (typeof __firebase_config === 'undefined' || !__firebase_config) throw new Error("No config");
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app); db = getFirestore(app);
+            if (typeof __app_id !== 'undefined') appId = __app_id;
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            };
+            await initAuth();
+            onAuthStateChanged(auth, (u) => {
+                if (u) {
+                    user = u; updateCloudStatus('connected');
+                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
+                    onSnapshot(docRef, (docSnap) => {
+                        // 僅在初始載入時（input皆為空）載入雲端資料，避免覆蓋使用者當前操作
+                        const isInitialLoad = !els.cash.value && !els.stock2x.value; 
+                        if (docSnap.exists() && isInitialLoad) { applyState(docSnap.data()); showToast('☁️ 已載入雲端紀錄', 'info'); }
+                    });
+                }
+            });
+        } catch (e) { 
+            console.warn("Firebase Init Failed:", e); 
+            updateCloudStatus('local'); 
+            const localData = localStorage.getItem(STORAGE_KEY); 
+            if (localData) applyState(JSON.parse(localData)); 
+        }
+    }
+
+    // Events
+    function attachEvents() {
+        STATE_FIELDS.forEach(id => { const el = els[id]; if (el) { el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', () => { window.calculate(); debouncedSave(); }); } });
+        if (btnSave) btnSave.onclick = () => saveStateToStorage(true);
+        if (btnBackup) btnBackup.onclick = () => {
+            const blob = new Blob([JSON.stringify(snapshotState(), null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `exposure_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('⬇️ 備份已下載', 'success');
+        };
+        if (fileImport) fileImport.onchange = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader(); reader.onload = (ev) => { try { applyState(JSON.parse(ev.target.result)); saveStateToStorage(true); showToast('⬆️ 匯入成功並同步', 'success'); } catch { showToast('❌ 匯入失敗', 'error'); } }; reader.readAsText(file); e.target.value = null;
+        };
+    }
+
+    // Helpers
+    function getRiskCategory(ratio) { if (ratio < 50) return { level: '低風險', color: 'emerald' }; if (ratio < 100) return { level: '中低風險', color: 'green' }; if (ratio < 150) return { level: '中風險', color: 'amber' }; if (ratio < 200) return { level: '中高風險', color: 'orange' }; if (ratio < 300) return { level: '高風險', color: 'rose' }; return { level: '極高風險', color: 'red' }; }
+    
+    function updateRiskDisplay(expRatio) {
+        const risk = getRiskCategory(expRatio);
+        const riskBadge = document.getElementById('riskBadge');
+        const expBg = document.getElementById('exposureBg');
+        const expDisp = document.getElementById('exposureDisplay');
+
+        if (riskBadge) { 
+            riskBadge.innerText = risk.level; 
+            riskBadge.className = `inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-2 text-white bg-${risk.color}-600`; 
+        }
+        if (expBg) { 
+            expBg.className = `absolute inset-0 transition-colors duration-500 bg-${risk.color}-500/10`;
+        }
+        
+        if (expDisp) { 
+            // Reset base classes
+            expDisp.className = `text-6xl font-bold tracking-tighter transition-colors duration-500`;
+            expDisp.classList.remove('text-rose-400', 'pulse-shadow'); 
+            expDisp.classList.add('text-white'); // Default color
+
+            if (expRatio >= 200) {
+                expDisp.classList.add('text-rose-400', 'pulse-shadow');
+                expDisp.classList.remove('text-white'); // Override default color for high risk
+            } 
+        }
+    }
+    
+    // Global Window
+    window.toggleModal = (id) => { const el = document.getElementById(id); if (el) { el.classList.toggle('opacity-0'); el.classList.toggle('pointer-events-none'); } };
+    let pTarget = 100, pTol = 5;
+    window.openRiskModal = () => { document.getElementById('riskQuestions').classList.remove('hidden'); document.getElementById('riskResults').classList.add('hidden'); window.toggleModal('riskModal'); };
+    window.resetRiskModal = window.openRiskModal;
+    window.analyzeRisk = () => {
+        const score = ['q1','q2','q3'].map(id=>parseInt(document.getElementById(id).value)).reduce((a,b)=>a+b,0);
+        const q4 = parseInt(document.getElementById('q4').value);
+        
+        if (score <= 1) pTarget = 60; else if (score <= 3) pTarget = 80; else if (score <= 4) pTarget = 110; else pTarget = 130;
+        pTol = q4 === 0 ? 15 : (q4 === 1 ? 10 : 5);
+        
+        document.getElementById('resultTarget').innerText = pTarget + "%"; 
+        document.getElementById('resultTolerance').innerText = "±" + pTol + "%";
+        
+        // Refactored Icon logic for robustness
+        let iconClass = "fa-shield-halved"; 
+        let colorClass = "border-emerald-500 text-emerald-400";
+        if (score > 1 && score <= 3) { iconClass = "fa-scale-balanced"; colorClass = "border-blue-500 text-blue-400"; } 
+        else if (score > 3 && score <= 4) { iconClass = "fa-chart-line"; colorClass = "border-amber-500 text-amber-400"; } 
+        else if (score > 4) { iconClass = "fa-rocket"; colorClass = "border-rose-500 text-rose-400"; }
+        
+        const ic = document.getElementById('resultIconContainer'), i = document.getElementById('resultIcon');
+        ic.className = `w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center border-4 ${colorClass} shadow-[0_0_20px_rgba(255,255,255,0.1)]`;
+        i.className = `fa-solid ${iconClass} text-4xl text-white`;
+        
+        document.getElementById('riskQuestions').classList.add('hidden'); 
+        document.getElementById('riskResults').classList.remove('hidden');
+    };
+    window.confirmRiskSettings = () => { els.targetExposure.value = pTarget; els.tolerance.value = pTol; window.calculate(); debouncedSave(); window.toggleModal('riskModal'); };
+
+    // Core Calc
+    window.calculate = () => {
+        const val = (id) => parseFloat(els[id]?.value) || 0;
+        const vCash = val('cash'), vS2 = val('stock2x'), vS1 = val('stock1x'), vLoan = val('collateralLoan'), vGenLoan = val('generalLoan'), vRE = val('realEstateMarketValue'), vMort = val('mortgageBalance'), vMult = val('leverageMultiplier') || 2, vTar = val('targetExposure') || 130, vTol = val('tolerance') || 5;
+        let net = vCash + vS2 + vS1 - (vLoan + vGenLoan) + (vRE - vMort);
+        if (!els.reToggle.checked) net -= (vRE - vMort);
+        let exp = (vS2 * vMult) + vS1;
+        if (els.reExpToggle.checked) exp += (vRE - vMort);
+        
+        const disp = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
+        
+        if (net <= 0) { 
+            disp('exposureDisplay', 'N/A'); 
+            disp('leverageRatioDisplay', 'N/A'); 
+        } else {
+            const r = (exp/net)*100;
+            disp('exposureDisplay', r.toFixed(0) + "%"); 
+            disp('leverageRatioDisplay', (exp/net).toFixed(2) + "x");
+            updateRiskDisplay(r);
+            
+            const actionCard = document.getElementById('actionCard'); 
+            actionCard.classList.remove('hidden');
+            
+            const diff = (net * (vTar/100)) - exp;
+            const title = document.getElementById('actionTitle'), amt1 = document.getElementById('actionAmount1x'), amtN = document.getElementById('actionAmountNx'), badge = document.getElementById('actionBadge');
+            
+            if (Math.abs(r - vTar) <= vTol) { 
+                title.innerText = "安全持有 (HOLD)"; 
+                title.className = "text-base font-bold text-emerald-400"; 
+                amt1.innerText = "維持現狀"; 
+                amtN.innerText = "維持現狀"; 
+                badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-emerald-500"; 
+                badge.innerText = "WAIT"; 
+            } else if (r > vTar + vTol) { 
+                title.innerText = "建議賣出 (SELL)"; 
+                title.className = "text-base font-bold text-rose-400"; 
+                amt1.innerText = `賣出 ${Math.abs(diff).toLocaleString('zh-TW')} (1X)`; 
+                amtN.innerText = `賣出 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`; 
+                badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-rose-500"; 
+                badge.innerText = "ACTION"; 
+            } else { 
+                title.innerText = "建議買進 (BUY)"; 
+                title.className = "text-base font-bold text-amber-400"; 
+                amt1.innerText = `買進 ${Math.abs(diff).toLocaleString('zh-TW')} (1X)`; 
+                amtN.innerText = `買進 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`; 
+                badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-amber-500"; 
+                badge.innerText = "ACTION"; 
+            }
+        }
+        
+        disp('netWorthDisplay', "$" + Math.round(net).toLocaleString('zh-TW'));
+
+        const mtnCard = document.getElementById('mtnCard');
+        if (vLoan > 0) {
+            mtnCard.classList.remove('hidden');
+            const mtn = ((vS2+vS1)/vLoan)*100;
+            document.getElementById('mtnValue').innerText = mtn.toFixed(0) + "%";
+            document.getElementById('mtnBar').style.width = Math.min(mtn/2.5, 100) + "%";
+            const bar = document.getElementById('mtnBar'), bdg = document.getElementById('mtnBadge'), valEl = document.getElementById('mtnValue'), desc = document.getElementById('mtnDesc');
+            bar.className = 'h-full transition-all duration-500'; bdg.className = 'text-[10px] px-2 py-0.5 rounded transition-colors duration-500'; valEl.classList.remove('text-rose-400');
+            if (mtn < 130) { bdg.innerText="DANGER"; desc.innerText="⚠️ 警告：低於 130%！需補錢或賣出。"; bar.classList.add('bg-rose-500'); bdg.classList.add('bg-rose-500','text-white','animate-pulse'); valEl.classList.add('text-rose-400'); }
+            else if (mtn < 166) { bdg.innerText="Warning"; desc.innerText="注意：低於 166%，維持率偏低。"; bar.classList.add('bg-yellow-500'); bdg.classList.add('bg-yellow-500','text-black'); }
+            else { bdg.innerText="Safe"; desc.innerText="維持率健康。"; bar.classList.add('bg-emerald-500'); bdg.classList.add('bg-emerald-500','text-white'); }
+        } else { mtnCard.classList.add('hidden'); }
+    };
+
+    // Simulate (Updated with Slider)
+    const apiKey = ""; const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+    async function callGemini(sys, usr) {
+        const payload = { contents: [{ parts: [{ text: usr }] }], systemInstruction: { parts: [{ text: sys }] } };
+        for (let i = 0; i < 3; i++) {
+            try { const res = await fetch(apiUrl + `?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!res.ok) { if (res.status === 429 && i < 2) { await new Promise(r => setTimeout(r, 2000)); continue; } throw new Error(res.status); }
+                const json = await res.json(); return json.candidates?.[0]?.content?.parts?.[0]?.text || "Error";
+            } catch (e) { if (i===2) throw e; await new Promise(r => setTimeout(r, 2000)); }
+        }
+    }
+
+    window.simulateRisk = async () => {
+        const llmCard = document.getElementById('llmResultCard'), llmText = document.getElementById('llmResultText'), loader = document.getElementById('llmLoader'), btn = document.getElementById('simulateBtn');
+        llmCard.classList.remove('hidden'); llmText.innerText = "AI 分析中..."; loader.classList.remove('hidden'); btn.disabled = true;
+
+        const vS2 = parseFloat(els.stock2x.value)||0, vS1 = parseFloat(els.stock1x.value)||0, vLoan = parseFloat(els.collateralLoan.value)||0;
+        const totalCol = vS2 + vS1;
+        
+        // Get custom drop percent
+        const dropSlider = document.getElementById('dropSlider');
+        const dropPercent = parseInt(dropSlider ? dropSlider.value : 20);
+        const marketDrop = dropPercent / 100;
+
+        const newCol = totalCol * (1 - marketDrop);
+        const newMtn = (newCol / vLoan) * 100;
+        const reqCol = vLoan * 1.66;
+        const cashReq = Math.max(0, reqCol - newCol);
+        const curMtn = (totalCol / vLoan * 100).toFixed(2);
+
+        const sys = "您是專業金融風險分析師。請針對用戶設定的市場跌幅情境進行壓力測試分析。請以繁體中文回答，語氣專業且保守，重點放在維持率變化與補錢建議。";
+        const usr = `目前數據：\n- 擔保品: ${Math.round(totalCol).toLocaleString()} TWD\n- 借款: ${Math.round(vLoan).toLocaleString()} TWD\n- 維持率: ${curMtn}%\n\n情境假設：市場下跌 ${dropPercent}%。\n\n分析結果需求：\n1. 新的擔保品市值\n2. 新的維持率\n3. 若要回到 166% 維持率，需補入多少現金 (數值為 ${Math.round(cashReq).toLocaleString()} TWD)\n4. 簡短風險建議`;
+
+        try { const txt = await callGemini(sys, usr); llmText.innerText = txt; }
+        catch (e) { llmText.innerText = `模擬分析 (本機模式):\n- 跌幅設定: ${dropPercent}%\n- 新維持率: ${newMtn.toFixed(2)}%\n- 建議補錢 (至166%): $${Math.round(cashReq).toLocaleString()}\n\n(連線失敗: ${e.message})`; }
+        finally { loader.classList.add('hidden'); btn.disabled = false; }
+    };
+
+    function showToast(msg, type) {
+        const div = document.createElement('div'); div.className = `p-3 mb-2 rounded shadow-lg text-white text-sm animate-bounce ${type==='error'?'bg-rose-600':(type==='info'?'bg-blue-600':'bg-emerald-600')}`;
+        div.innerText = msg; document.getElementById('toastContainer').appendChild(div); setTimeout(()=>div.remove(), 3000);
+    }
+
+    // --- 新增授權邏輯 ---
+
+    // 授權處理函式
+    window.handleAuthSubmit = () => {
+        const inputEl = document.getElementById('authCodeInput');
+        const errorEl = document.getElementById('authError');
+        const code = inputEl.value.trim();
+
+        errorEl.innerText = '';
+        if (code === AUTH_CODE) {
+            localStorage.setItem('isAuthorized', 'true'); // 儲存成功狀態
+            document.getElementById('authModal').classList.add('opacity-0', 'pointer-events-none');
+            // 授權成功後，開始初始化應用程式
+            initApp();
+        } else {
+            errorEl.innerText = '❌ 授權碼錯誤，請重新輸入。';
+            inputEl.value = '';
+        }
+    };
+    
+    // 應用程式核心初始化函式 (原先分散在底部)
+    async function initApp() {
+        initEls(); 
+        await initFirebase(); // Firebase 初始化必須在授權後
+        attachEvents();
+        window.calculate(); // 首次計算
+    }
+
+    // 檢查授權狀態
+    function checkAuthStatus() {
+        const authModal = document.getElementById('authModal');
+        const isAuth = localStorage.getItem('isAuthorized') === 'true';
+
+        if (isAuth) {
+            authModal.classList.add('opacity-0', 'pointer-events-none');
+            initApp();
+        } else {
+            // 如果未授權，顯示模態框並阻止互動
+            authModal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+    }
+
+    // 頁面載入時開始檢查授權
+    checkAuthStatus();
+</script>
+</body>
+</html>
