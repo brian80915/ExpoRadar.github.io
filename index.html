@@ -336,7 +336,7 @@
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
                 await setDoc(docRef, state);
-                if (isManual) { showToast('✅ 雲端存檔成功！', 'success'); setTimeout(() => updateCloudStatus('connected'), 1000); }
+                if (isManual) { showToast('✅ 已存檔成功！', 'success'); setTimeout(() => updateCloudStatus('connected'), 1000); }
             } catch (e) { console.error("Cloud save failed", e); if (isManual) showToast('❌ 存檔失敗，僅保存於本機', 'error'); updateCloudStatus('error'); }
         } else if (isManual) { showToast('⚠️ 僅保存於本機 (未連線)', 'info'); }
     }
@@ -346,7 +346,7 @@
     // Firebase
     async function initFirebase() {
         try {
-            if (typeof __firebase_config === 'undefined' || !__firebase_config) throw new Error("No config");
+            if (true) throw new Error("No config");  // 直接跳過 Firebase 初始化
             const firebaseConfig = JSON.parse(__firebase_config);
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app); db = getFirestore(app);
@@ -358,7 +358,7 @@
             await initAuth();
             onAuthStateChanged(auth, (u) => {
                 if (u) {
-                    user = u; updateCloudStatus('connected');
+                    user = u; updateCloudStatus('local');  // 強制顯示本地模式
                     const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
                     onSnapshot(docRef, (docSnap) => {
                         // 僅在初始載入時（input皆為空）載入雲端資料，避免覆蓋使用者當前操作
@@ -606,3 +606,4 @@
 </script>
 </body>
 </html>
+
