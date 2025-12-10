@@ -269,8 +269,9 @@
                             <li><strong class="text-white">寬鬆應對 (±15%)：</strong>交易極少，只在市場劇烈變動時才調整。交易頻率低。</li> 
                      </div>     
                 <div class="space-y-2">
-                <div class="space-y-2"><h3 class="text-indigo-400 font-bold">6. 模擬跌幅</h3><p>新增滑桿功能，可自由設定 -5% 至 -50% 的市場跌幅情境，系統將自動計算對應的維持率變化與補繳保證金需求。</p></div>
+                <div class="space-y-2"><h3 class="text-indigo-400 font-bold">6. 模擬跌幅</h3><p>滑桿功能，可自由設定 -5% 至 -50% 的市場跌幅情境，系統將自動計算對應的維持率變化與補繳保證金需求。</p></div>
             </div>
+            <p class="text-center text-xs text-slate-500 mt-8">© 2025 布萊恩 | 目前為內測版本，未經授權請勿二次散布</p>
         </div>
     </div>
 </div>
@@ -283,7 +284,7 @@
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let auth, db, user, appId = 'default-app', isCloudEnabled = false;
-    const AUTH_CODE = '8888'; //
+    const AUTH_CODE = 'E688'; //
     const STORAGE_KEY = 'exposure_v1';
     const inputIds = ['cash', 'stock2x', 'stock1x', 'collateralLoan', 'generalLoan', 'realEstateMarketValue', 'mortgageBalance', 'leverageMultiplier', 'targetExposure', 'tolerance'];
     const toggleIds = ['reToggle', 'reExpToggle'];
