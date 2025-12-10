@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!DOCTYPE index.html>
+<index.html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>曝險控制 v13.8.2 - 授權修復版</title>
+    <title>曝險雷達</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -56,7 +56,7 @@
 <div class="pt-12 pb-4 px-6 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800 flex justify-between items-center">
     <div class="flex items-center gap-2">
         <h1 class="text-lg font-bold tracking-wider text-white">
-            <i class="fa-solid fa-gauge-high text-yellow-400"></i> 曝險控制 v13.8.2
+            <i class="fa-solid fa-gauge-high text-yellow-400"></i> 曝險雷達
         </h1>
     </div>
     <div class="flex items-center gap-3">
@@ -199,7 +199,7 @@
         </div>
     </div>
 
-    <div class="mt-8 text-center text-[10px] text-slate-600">Logic v13.8.2 | Custom Drop Simulation</div>
+    <div class="mt-8 text-center text-[10px] text-slate-600">Logic v1 | Custom Drop Simulation</div>
 </div>
 
 <!-- Risk Modal (保持不變) -->
@@ -605,4 +605,4 @@
     checkAuthStatus();
 </script>
 </body>
-</html>
+</index.html>
