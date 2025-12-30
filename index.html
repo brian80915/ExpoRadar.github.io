@@ -40,7 +40,6 @@
 </head>
 <body class="bg-slate-950/90 min-h-screen pb-20">
 
-<!-- 授權驗證模態框 (新增) -->
 <div id="authModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center z-[9999] bg-slate-950/90 backdrop-blur-md opacity-0 pointer-events-none">
     <div class="glass w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl p-8 text-center border-indigo-500/50">
         <h3 class="text-3xl font-bold text-yellow-400 mb-4"><i class="fa-solid fa-lock-open-file mr-2"></i> 系統授權驗證</h3>
@@ -96,38 +95,35 @@
         </div>
     </div>
 
-    <!-- 輸入區塊 (保持不變) -->
     <div class="space-y-3">
         <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-emerald-500 shadow flex items-center justify-between">
             <div class="flex flex-col"><label class="text-sm font-medium text-emerald-400 pl-1"><i class="fa-solid fa-sack-dollar w-5"></i> 可投資現金</label><p class="text-xs text-slate-500 pl-1">專款專用</p></div>
-            <input type="number" id="cash" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+            <input type="number" inputmode="decimal" id="cash" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
         </div>
         <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-yellow-500 shadow space-y-2">
-            <div class="flex items-center justify-between"><label class="text-sm font-medium text-yellow-400 pl-1"><i class="fa-solid fa-bolt w-5"></i> 高波動/槓桿部位總市值(槓桿ETF、期貨)</label><input type="number" id="stock2x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
-            <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-slate-400 text-xs">實際槓桿 (如: 2, 3)<input type="number" id="leverageMultiplier" value="2" min="1" step="0.5" placeholder="2" class="w-16 bg-slate-800/50 rounded p-1 text-center text-sm font-mono text-white focus:outline-none"></div>
+            <div class="flex items-center justify-between"><label class="text-sm font-medium text-yellow-400 pl-1"><i class="fa-solid fa-bolt w-5"></i> 高波動/槓桿部位總市值(槓桿ETF、期貨)</label><input type="number" inputmode="decimal" id="stock2x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-slate-400 text-xs">實際槓桿 (如: 2, 3)<input type="number" inputmode="decimal" id="leverageMultiplier" value="2" min="1" step="0.5" placeholder="2" class="w-16 bg-slate-800/50 rounded p-1 text-center text-sm font-mono text-white focus:outline-none"></div>
         </div>
         <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-yellow-600 shadow flex items-center justify-between">
-            <label class="text-sm font-medium text-yellow-500 pl-1"><i class="fa-solid fa-layer-group w-5"></i> 一般股市總市值 (1X)</label><input type="number" id="stock1x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+            <label class="text-sm font-medium text-yellow-500 pl-1"><i class="fa-solid fa-layer-group w-5"></i> 一般股市總市值 (1X)</label><input type="number" inputmode="decimal" id="stock1x" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
         </div>
         <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-rose-500 shadow flex items-center justify-between relative overflow-hidden">
             <div class="absolute inset-0 bg-rose-500/5 pointer-events-none"></div>
             <div class="flex flex-col"><label class="text-sm font-medium text-rose-400 pl-1"><i class="fa-solid fa-hand-holding-dollar w-5"></i> 質押借貸</label><p class="text-xs text-slate-500 pl-1">股票擔保</p></div>
-            <input type="number" id="collateralLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
+            <input type="number" inputmode="decimal" id="collateralLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700">
         </div>
-        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-rose-700 shadow flex items-center justify-between"><div class="flex flex-col"><label class="text-sm font-medium text-rose-300 pl-1"><i class="fa-solid fa-house-chimney-crack w-5"></i> 一般貸款</label><p class="text-xs text-slate-500 pl-1">信貸</p></div><input type="number" id="generalLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
-        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-500 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-400 pl-1"><i class="fa-solid fa-city w-5"></i> 房產市值</label><input type="number" id="realEstateMarketValue" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
-        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-700 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-300 pl-1"><i class="fa-solid fa-file-invoice-dollar w-5"></i> 房貸餘額</label><input type="number" id="mortgageBalance" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-rose-700 shadow flex items-center justify-between"><div class="flex flex-col"><label class="text-sm font-medium text-rose-300 pl-1"><i class="fa-solid fa-house-chimney-crack w-5"></i> 一般貸款</label><p class="text-xs text-slate-500 pl-1">信貸</p></div><input type="number" inputmode="decimal" id="generalLoan" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-500 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-400 pl-1"><i class="fa-solid fa-city w-5"></i> 房產市值</label><input type="number" inputmode="decimal" id="realEstateMarketValue" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
+        <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-cyan-700 shadow flex items-center justify-between"><label class="text-sm font-medium text-cyan-300 pl-1"><i class="fa-solid fa-file-invoice-dollar w-5"></i> 房貸餘額</label><input type="number" inputmode="decimal" id="mortgageBalance" placeholder="0" class="w-32 bg-transparent text-right text-lg font-bold text-white focus:outline-none font-mono placeholder-slate-700"></div>
     </div>
     
-    <!-- 設定區塊 (保持不變) -->
     <div class="bg-slate-900 rounded-xl p-3 border-l-4 border-indigo-500 shadow space-y-3">
-        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">🎯 目標曝險 (%)</label><input type="number" id="targetExposure" value="130" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
-        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">± 容忍度 (%)</label><input type="number" id="tolerance" value="5" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
+        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">🎯 目標曝險 (%)</label><input type="number" inputmode="decimal" id="targetExposure" value="130" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
+        <div class="flex items-center justify-between"><label class="text-sm font-medium text-indigo-400 pl-1">± 容忍度 (%)</label><input type="number" inputmode="decimal" id="tolerance" value="5" class="w-16 bg-slate-800/50 rounded p-1 text-center text-lg font-bold text-white font-mono"></div>
         <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">房產淨值納入淨資產分母<input type="checkbox" id="reToggle" class="h-4 w-4 rounded bg-slate-700 border-slate-600 text-indigo-500 focus:ring-indigo-500"></div>
         <div class="flex items-center justify-between text-xs text-slate-400">房產淨值計入 1X 曝險 (激進)<input type="checkbox" id="reExpToggle" class="h-4 w-4 rounded bg-slate-700 border-slate-600 text-indigo-500 focus:ring-indigo-500"></div>
     </div>
 
-    <!-- 數據管理 (保持不變) -->
     <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-purple-500 shadow mt-5">
         <h3 class="text-sm font-bold text-purple-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> 數據管理</h3>
         <div class="grid grid-cols-3 gap-3">
@@ -139,7 +135,6 @@
         <p class="text-[10px] text-slate-500 mt-2 text-center">。</p>
     </div>
 
-    <!-- 維持率卡片 (含自定義滑桿) (保持不變) -->
     <div id="mtnCard" class="hidden glass rounded-xl p-4 border border-slate-700 shadow-lg space-y-3">
         <div class="flex justify-between items-center">
             <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> 擔保品維持率</h3>
@@ -154,7 +149,6 @@
         </div>
         <p id="mtnDesc" class="text-xs text-slate-400 mt-2">目前維持率健康，無追繳風險。</p>
         
-        <!-- NEW: Custom Drop Slider -->
         <div class="bg-slate-800/50 rounded-lg p-3 mt-2 border border-slate-700/50">
             <div class="flex justify-between items-center mb-2">
                 <label class="text-xs font-bold text-indigo-300 flex items-center gap-1"><i class="fa-solid fa-arrow-trend-down"></i> 模擬市場跌幅</label>
@@ -173,7 +167,6 @@
         </button>
     </div>
 
-    <!-- LLM 分析結果 (保持不變) -->
     <div id="llmResultCard" class="hidden glass rounded-xl p-4 border-l-4 border-indigo-500 shadow-xl mt-4">
         <div class="flex items-center gap-2 mb-2">
             <i class="fa-solid fa-robot text-indigo-400"></i>
@@ -183,7 +176,6 @@
         <p id="llmResultText" class="text-sm text-slate-300 whitespace-pre-wrap">...</p>
     </div>
 
-    <!-- 建議操作卡片 (保持不變) -->
     <div id="actionCard" class="hidden mt-4 transform transition-all duration-500">
         <div class="rounded-xl p-5 border-l-4 shadow-lg bg-slate-800 border-slate-600 relative">
             <div class="flex justify-between items-start mb-2">
@@ -199,10 +191,9 @@
         </div>
     </div>
 
-    <div class="mt-8 text-center text-[10px] text-slate-600">Logic v13.8.2 | Custom Drop Simulation</div>
+    <div class="mt-8 text-center text-[10px] text-slate-600">Logic v13.8.3 | Mobile Optimized</div>
 </div>
 
-<!-- Risk Modal (保持不變) -->
 <div id="riskModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
     <div class="modal-overlay absolute w-full h-full bg-black opacity-80" onclick="window.toggleModal('riskModal')"></div>
     <div class="modal-container bg-slate-900 w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
@@ -233,7 +224,6 @@
     </div>
 </div>
 
-<!-- Tutorial Modal (保持不變) -->
 <div id="tutorialModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
     <div class="modal-overlay absolute w-full h-full bg-black opacity-80" onclick="window.toggleModal('tutorialModal')"></div>
     <div class="modal-container bg-slate-900 w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
@@ -252,7 +242,7 @@
                     </ul>
                 </div>
                 <div class="space-y-2">
-                        <h3 class="text-indigo-400 font-bold">3. 房產設定</h3>
+                    <h3 class="text-indigo-400 font-bold">3. 房產設定</h3>
                         <p>房產淨值會增加您的「淨資產分母」，讓槓桿比例看起來比較健康（生命週期投資法）。若您希望採取更激進的算法，可開啟「計入房產 1X 曝險」。</p>
                     </div>
                 <div class="space-y-2">
@@ -261,7 +251,7 @@
                         <p>當總曝顯達100%,且現金為0時。改使用股票市值執行再平衡調整。通過使用價值區間而非單純的曝險比例,可以確保資產波動時能進行紀律性的低買高賣操作。</p>
                     </div>
                  <div class="space-y-2">
-                        <h3 class="text-indigo-400 font-bold">5. 容忍度 (Tolerance ±%)</h3>
+                     <div class="space-y-2"><h3 class="text-indigo-400 font-bold">5. 容忍度 (Tolerance ±%)</h3>
                         <p>這是您願意讓實際曝險比例偏離「目標曝險」的最大範圍。容忍度越低，再平衡的頻率就越高，越能維持嚴謹的紀律；容忍度越高，則交易次數越少，但允許曝險有更大的浮動變化。</p>
                         <ul class="list-disc pl-4 space-y-1 text-slate-400 text-xs">
                             <li><strong class="text-white">嚴謹紀律 (±5%)：</strong>追求精確，小幅偏離即調整。交易頻率高。</li>
@@ -269,7 +259,7 @@
                             <li><strong class="text-white">寬鬆應對 (±15%)：</strong>交易極少，只在市場劇烈變動時才調整。交易頻率低。</li> 
                      </div>     
                 <div class="space-y-2">
-                <div class="space-y-2"><h3 class="text-indigo-400 font-bold">6. 模擬跌幅</h3><p>滑桿功能，可自由設定 -5% 至 -50% 的市場跌幅情境，系統將自動計算對應的維持率變化與補繳保證金需求。</p></div>
+                 <div class="space-y-2"><h3 class="text-indigo-400 font-bold">6. 模擬跌幅</h3><p>滑桿功能，可自由設定 -5% 至 -50% 的市場跌幅情境，系統將自動計算對應的維持率變化與補繳保證金需求。</p></div>
             </div>
             <p class="text-center text-xs text-slate-500 mt-8">© 2025 布萊恩 | 目前為內測版本，未經授權請勿二次散布</p>
         </div>
@@ -282,9 +272,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    
     let auth, db, user, appId = 'default-app', isCloudEnabled = false;
-    const AUTH_CODE = 'E688'; //
+    const AUTH_CODE = 'E688';
     const STORAGE_KEY = 'exposure_v1';
     const inputIds = ['cash', 'stock2x', 'stock1x', 'collateralLoan', 'generalLoan', 'realEstateMarketValue', 'mortgageBalance', 'leverageMultiplier', 'targetExposure', 'tolerance'];
     const toggleIds = ['reToggle', 'reExpToggle'];
@@ -296,7 +286,8 @@
         inputIds.forEach(id => els[id] = document.getElementById(id));
         toggleIds.forEach(id => els[id] = document.getElementById(id));
         btnSave = document.getElementById('btnSave'); btnBackup = document.getElementById('btnBackup'); fileImport = document.getElementById('fileImport');
-        cloudStatus = document.getElementById('cloudStatus'); cloudDot = document.getElementById('cloudDot'); cloudText = document.getElementById('cloudText');
+        cloudStatus = document.getElementById('cloudStatus'); cloudDot = document.getElementById('cloudDot');
+        cloudText = document.getElementById('cloudText');
         
         // Slider Listener
         const dropSlider = document.getElementById('dropSlider');
@@ -320,53 +311,75 @@
         window.calculate();
     }
     function updateCloudStatus(status) {
-        if (status === 'connected') { cloudDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse"; cloudText.innerText = "CLOUD SYNC"; cloudText.className = "text-[10px] text-green-400 font-mono"; isCloudEnabled = true; }
-        else if (status === 'saving') { cloudDot.className = "w-2 h-2 rounded-full bg-yellow-500 animate-bounce"; cloudText.innerText = "SAVING..."; cloudText.className = "text-[10px] text-yellow-400 font-mono"; }
-        else { cloudDot.className = "w-2 h-2 rounded-full bg-gray-500"; cloudText.innerText = "LOCAL MODE"; cloudText.className = "text-[10px] text-gray-400 font-mono"; isCloudEnabled = false; }
+        if (status === 'connected') { cloudDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+        cloudText.innerText = "CLOUD SYNC"; cloudText.className = "text-[10px] text-green-400 font-mono"; isCloudEnabled = true;
+        }
+        else if (status === 'saving') { cloudDot.className = "w-2 h-2 rounded-full bg-yellow-500 animate-bounce";
+        cloudText.innerText = "SAVING..."; cloudText.className = "text-[10px] text-yellow-400 font-mono"; }
+        else { cloudDot.className = "w-2 h-2 rounded-full bg-gray-500";
+        cloudText.innerText = "LOCAL MODE"; cloudText.className = "text-[10px] text-gray-400 font-mono"; isCloudEnabled = false;
+        }
     }
 
     // Storage
     async function saveStateToStorage(isManual = false) {
         const state = snapshotState();
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn("Local failed", e); }
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn("Local failed", e);
+        }
         if (isCloudEnabled && user && db) {
             if (isManual) updateCloudStatus('saving');
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
                 await setDoc(docRef, state);
-                if (isManual) { showToast('✅ 已存檔成功！', 'success'); setTimeout(() => updateCloudStatus('connected'), 1000); }
-            } catch (e) { console.error("Cloud save failed", e); if (isManual) showToast('❌ 存檔失敗，僅保存於本機', 'error'); updateCloudStatus('error'); }
-        } else if (isManual) { showToast('⚠️ 僅保存於本機 (未連線)', 'info'); }
+                if (isManual) { showToast('✅ 已存檔成功！', 'success'); setTimeout(() => updateCloudStatus('connected'), 1000);
+                }
+            } catch (e) { console.error("Cloud save failed", e);
+            if (isManual) showToast('❌ 存檔失敗，僅保存於本機', 'error'); updateCloudStatus('error'); }
+        } else if (isManual) { showToast('⚠️ 僅保存於本機 (未連線)', 'info');
+        }
     }
-    const autoSave = (fn, wait = 500) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
+    const autoSave = (fn, wait = 500) => { let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
     const debouncedSave = autoSave(() => saveStateToStorage(false), 1000);
-
-    // Firebase
+    
+    // Firebase Init
     async function initFirebase() {
         try {
-            if (true) throw new Error("No config");  // 直接跳過 Firebase 初始化
-            const firebaseConfig = JSON.parse(__firebase_config);
+            // Martin: 已移除阻擋錯誤，請在下方填入您的 Firebase 設定
+            // if (true) throw new Error("No config");
+            
+            // 重要：請在此處填入您的 Firebase Config
+            const firebaseConfig = {
+                apiKey: "您的_API_KEY",
+                authDomain: "您的_PROJECT_ID.firebaseapp.com",
+                projectId: "您的_PROJECT_ID",
+                storageBucket: "您的_PROJECT_ID.firebasestorage.app",
+                messagingSenderId: "您的_MESSAGING_SENDER_ID",
+                appId: "您的_APP_ID"
+            };
+
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app); db = getFirestore(app);
             if (typeof __app_id !== 'undefined') appId = __app_id;
+            
             const initAuth = async () => {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
             };
             await initAuth();
+            
             onAuthStateChanged(auth, (u) => {
                 if (u) {
-                    user = u; updateCloudStatus('local');  // 強制顯示本地模式
+                    user = u; updateCloudStatus('connected'); // 連線成功顯示
                     const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'exposure_settings');
                     onSnapshot(docRef, (docSnap) => {
-                        // 僅在初始載入時（input皆為空）載入雲端資料，避免覆蓋使用者當前操作
                         const isInitialLoad = !els.cash.value && !els.stock2x.value; 
                         if (docSnap.exists() && isInitialLoad) { applyState(docSnap.data()); showToast('☁️ 已載入雲端紀錄', 'info'); }
                     });
                 }
             });
         } catch (e) { 
-            console.warn("Firebase Init Failed:", e); 
+            console.warn("Firebase Init Failed:", e);
             updateCloudStatus('local'); 
             const localData = localStorage.getItem(STORAGE_KEY); 
             if (localData) applyState(JSON.parse(localData)); 
@@ -382,62 +395,71 @@
             const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `exposure_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('⬇️ 備份已下載', 'success');
         };
         if (fileImport) fileImport.onchange = (e) => {
-            const file = e.target.files[0]; if (!file) return;
-            const reader = new FileReader(); reader.onload = (ev) => { try { applyState(JSON.parse(ev.target.result)); saveStateToStorage(true); showToast('⬆️ 匯入成功並同步', 'success'); } catch { showToast('❌ 匯入失敗', 'error'); } }; reader.readAsText(file); e.target.value = null;
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader(); reader.onload = (ev) => { try { applyState(JSON.parse(ev.target.result)); saveStateToStorage(true); showToast('⬆️ 匯入成功並同步', 'success');
+            } catch { showToast('❌ 匯入失敗', 'error'); } }; reader.readAsText(file); e.target.value = null;
         };
     }
 
     // Helpers
-    function getRiskCategory(ratio) { if (ratio < 50) return { level: '低風險', color: 'emerald' }; if (ratio < 100) return { level: '中低風險', color: 'green' }; if (ratio < 150) return { level: '中風險', color: 'amber' }; if (ratio < 200) return { level: '中高風險', color: 'orange' }; if (ratio < 300) return { level: '高風險', color: 'rose' }; return { level: '極高風險', color: 'red' }; }
+    function getRiskCategory(ratio) { if (ratio < 50) return { level: '低風險', color: 'emerald' };
+    if (ratio < 100) return { level: '中低風險', color: 'green' };
+    if (ratio < 150) return { level: '中風險', color: 'amber' };
+    if (ratio < 200) return { level: '中高風險', color: 'orange' };
+    if (ratio < 300) return { level: '高風險', color: 'rose' }; return { level: '極高風險', color: 'red' };
+    }
     
     function updateRiskDisplay(expRatio) {
         const risk = getRiskCategory(expRatio);
         const riskBadge = document.getElementById('riskBadge');
         const expBg = document.getElementById('exposureBg');
         const expDisp = document.getElementById('exposureDisplay');
-
         if (riskBadge) { 
-            riskBadge.innerText = risk.level; 
-            riskBadge.className = `inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-2 text-white bg-${risk.color}-600`; 
+            riskBadge.innerText = risk.level;
+            riskBadge.className = `inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-2 text-white bg-${risk.color}-600`;
         }
         if (expBg) { 
             expBg.className = `absolute inset-0 transition-colors duration-500 bg-${risk.color}-500/10`;
         }
         
         if (expDisp) { 
-            // Reset base classes
             expDisp.className = `text-6xl font-bold tracking-tighter transition-colors duration-500`;
             expDisp.classList.remove('text-rose-400', 'pulse-shadow'); 
-            expDisp.classList.add('text-white'); // Default color
-
+            expDisp.classList.add('text-white'); 
             if (expRatio >= 200) {
                 expDisp.classList.add('text-rose-400', 'pulse-shadow');
-                expDisp.classList.remove('text-white'); // Override default color for high risk
+                expDisp.classList.remove('text-white'); 
             } 
         }
     }
     
     // Global Window
-    window.toggleModal = (id) => { const el = document.getElementById(id); if (el) { el.classList.toggle('opacity-0'); el.classList.toggle('pointer-events-none'); } };
+    window.toggleModal = (id) => { const el = document.getElementById(id);
+    if (el) { el.classList.toggle('opacity-0'); el.classList.toggle('pointer-events-none'); } };
     let pTarget = 100, pTol = 5;
-    window.openRiskModal = () => { document.getElementById('riskQuestions').classList.remove('hidden'); document.getElementById('riskResults').classList.add('hidden'); window.toggleModal('riskModal'); };
+    window.openRiskModal = () => { document.getElementById('riskQuestions').classList.remove('hidden');
+    document.getElementById('riskResults').classList.add('hidden'); window.toggleModal('riskModal'); };
     window.resetRiskModal = window.openRiskModal;
     window.analyzeRisk = () => {
         const score = ['q1','q2','q3'].map(id=>parseInt(document.getElementById(id).value)).reduce((a,b)=>a+b,0);
         const q4 = parseInt(document.getElementById('q4').value);
         
-        if (score <= 1) pTarget = 60; else if (score <= 3) pTarget = 80; else if (score <= 4) pTarget = 110; else pTarget = 130;
+        if (score <= 1) pTarget = 60; else if (score <= 3) pTarget = 80;
+        else if (score <= 4) pTarget = 110; else pTarget = 130;
         pTol = q4 === 0 ? 15 : (q4 === 1 ? 10 : 5);
         
-        document.getElementById('resultTarget').innerText = pTarget + "%"; 
+        document.getElementById('resultTarget').innerText = pTarget + "%";
         document.getElementById('resultTolerance').innerText = "±" + pTol + "%";
         
-        // Refactored Icon logic for robustness
-        let iconClass = "fa-shield-halved"; 
+        let iconClass = "fa-shield-halved";
         let colorClass = "border-emerald-500 text-emerald-400";
-        if (score > 1 && score <= 3) { iconClass = "fa-scale-balanced"; colorClass = "border-blue-500 text-blue-400"; } 
-        else if (score > 3 && score <= 4) { iconClass = "fa-chart-line"; colorClass = "border-amber-500 text-amber-400"; } 
-        else if (score > 4) { iconClass = "fa-rocket"; colorClass = "border-rose-500 text-rose-400"; }
+        if (score > 1 && score <= 3) { iconClass = "fa-scale-balanced";
+        colorClass = "border-blue-500 text-blue-400"; } 
+        else if (score > 3 && score <= 4) { iconClass = "fa-chart-line";
+        colorClass = "border-amber-500 text-amber-400"; } 
+        else if (score > 4) { iconClass = "fa-rocket";
+        colorClass = "border-rose-500 text-rose-400"; }
         
         const ic = document.getElementById('resultIconContainer'), i = document.getElementById('resultIcon');
         ic.className = `w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center border-4 ${colorClass} shadow-[0_0_20px_rgba(255,255,255,0.1)]`;
@@ -457,10 +479,11 @@
         let exp = (vS2 * vMult) + vS1;
         if (els.reExpToggle.checked) exp += (vRE - vMort);
         
-        const disp = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
+        const disp = (id, txt) => { const el = document.getElementById(id);
+        if(el) el.innerText = txt; };
         
         if (net <= 0) { 
-            disp('exposureDisplay', 'N/A'); 
+            disp('exposureDisplay', 'N/A');
             disp('leverageRatioDisplay', 'N/A'); 
         } else {
             const r = (exp/net)*100;
@@ -470,36 +493,33 @@
             
             const actionCard = document.getElementById('actionCard'); 
             actionCard.classList.remove('hidden');
-            
             const diff = (net * (vTar/100)) - exp;
             const title = document.getElementById('actionTitle'), amt1 = document.getElementById('actionAmount1x'), amtN = document.getElementById('actionAmountNx'), badge = document.getElementById('actionBadge');
-            
             if (Math.abs(r - vTar) <= vTol) { 
-                title.innerText = "安全持有 (HOLD)"; 
+                title.innerText = "安全持有 (HOLD)";
                 title.className = "text-base font-bold text-emerald-400"; 
                 amt1.innerText = "維持現狀"; 
                 amtN.innerText = "維持現狀"; 
-                badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-emerald-500"; 
+                badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-emerald-500";
                 badge.innerText = "WAIT"; 
             } else if (r > vTar + vTol) { 
-                title.innerText = "建議賣出 (SELL)"; 
+                title.innerText = "建議賣出 (SELL)";
                 title.className = "text-base font-bold text-rose-400"; 
                 amt1.innerText = `賣出 ${Math.abs(diff).toLocaleString('zh-TW')} (1X)`; 
-                amtN.innerText = `賣出 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`; 
+                amtN.innerText = `賣出 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`;
                 badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-rose-500"; 
-                badge.innerText = "ACTION"; 
+                badge.innerText = "ACTION";
             } else { 
-                title.innerText = "建議買進 (BUY)"; 
+                title.innerText = "建議買進 (BUY)";
                 title.className = "text-base font-bold text-amber-400"; 
                 amt1.innerText = `買進 ${Math.abs(diff).toLocaleString('zh-TW')} (1X)`; 
-                amtN.innerText = `買進 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`; 
+                amtN.innerText = `買進 ${Math.abs(diff/vMult).toLocaleString('zh-TW')} (Nx)`;
                 badge.className = "text-[10px] px-2 py-0.5 rounded text-white bg-amber-500"; 
-                badge.innerText = "ACTION"; 
+                badge.innerText = "ACTION";
             }
         }
         
         disp('netWorthDisplay', "$" + Math.round(net).toLocaleString('zh-TW'));
-
         const mtnCard = document.getElementById('mtnCard');
         if (vLoan > 0) {
             mtnCard.classList.remove('hidden');
@@ -507,22 +527,29 @@
             document.getElementById('mtnValue').innerText = mtn.toFixed(0) + "%";
             document.getElementById('mtnBar').style.width = Math.min(mtn/2.5, 100) + "%";
             const bar = document.getElementById('mtnBar'), bdg = document.getElementById('mtnBadge'), valEl = document.getElementById('mtnValue'), desc = document.getElementById('mtnDesc');
-            bar.className = 'h-full transition-all duration-500'; bdg.className = 'text-[10px] px-2 py-0.5 rounded transition-colors duration-500'; valEl.classList.remove('text-rose-400');
-            if (mtn < 130) { bdg.innerText="DANGER"; desc.innerText="⚠️ 警告：低於 130%！需補錢或賣出。"; bar.classList.add('bg-rose-500'); bdg.classList.add('bg-rose-500','text-white','animate-pulse'); valEl.classList.add('text-rose-400'); }
-            else if (mtn < 166) { bdg.innerText="Warning"; desc.innerText="注意：低於 166%，維持率偏低。"; bar.classList.add('bg-yellow-500'); bdg.classList.add('bg-yellow-500','text-black'); }
-            else { bdg.innerText="Safe"; desc.innerText="維持率健康。"; bar.classList.add('bg-emerald-500'); bdg.classList.add('bg-emerald-500','text-white'); }
+            bar.className = 'h-full transition-all duration-500';
+            bdg.className = 'text-[10px] px-2 py-0.5 rounded transition-colors duration-500'; valEl.classList.remove('text-rose-400');
+            if (mtn < 130) { bdg.innerText="DANGER"; desc.innerText="⚠️ 警告：低於 130%！需補錢或賣出。"; bar.classList.add('bg-rose-500'); bdg.classList.add('bg-rose-500','text-white','animate-pulse');
+            valEl.classList.add('text-rose-400'); }
+            else if (mtn < 166) { bdg.innerText="Warning";
+            desc.innerText="注意：低於 166%，維持率偏低。"; bar.classList.add('bg-yellow-500'); bdg.classList.add('bg-yellow-500','text-black'); }
+            else { bdg.innerText="Safe"; desc.innerText="維持率健康。";
+            bar.classList.add('bg-emerald-500'); bdg.classList.add('bg-emerald-500','text-white'); }
         } else { mtnCard.classList.add('hidden'); }
     };
 
-    // Simulate (Updated with Slider)
+    // Simulate
     const apiKey = ""; const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
     async function callGemini(sys, usr) {
         const payload = { contents: [{ parts: [{ text: usr }] }], systemInstruction: { parts: [{ text: sys }] } };
         for (let i = 0; i < 3; i++) {
             try { const res = await fetch(apiUrl + `?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!res.ok) { if (res.status === 429 && i < 2) { await new Promise(r => setTimeout(r, 2000)); continue; } throw new Error(res.status); }
-                const json = await res.json(); return json.candidates?.[0]?.content?.parts?.[0]?.text || "Error";
-            } catch (e) { if (i===2) throw e; await new Promise(r => setTimeout(r, 2000)); }
+            if (!res.ok) { if (res.status === 429 && i < 2) { await new Promise(r => setTimeout(r, 2000)); continue;
+            } throw new Error(res.status); }
+            const json = await res.json();
+            return json.candidates?.[0]?.content?.parts?.[0]?.text || "Error";
+            } catch (e) { if (i===2) throw e; await new Promise(r => setTimeout(r, 2000));
+            }
         }
     }
 
@@ -533,11 +560,9 @@
         const vS2 = parseFloat(els.stock2x.value)||0, vS1 = parseFloat(els.stock1x.value)||0, vLoan = parseFloat(els.collateralLoan.value)||0;
         const totalCol = vS2 + vS1;
         
-        // Get custom drop percent
         const dropSlider = document.getElementById('dropSlider');
         const dropPercent = parseInt(dropSlider ? dropSlider.value : 20);
         const marketDrop = dropPercent / 100;
-
         const newCol = totalCol * (1 - marketDrop);
         const newMtn = (newCol / vLoan) * 100;
         const reqCol = vLoan * 1.66;
@@ -547,29 +572,27 @@
         const sys = "您是專業金融風險分析師。請針對用戶設定的市場跌幅情境進行壓力測試分析。請以繁體中文回答，語氣專業且保守，重點放在維持率變化與補錢建議。";
         const usr = `目前數據：\n- 擔保品: ${Math.round(totalCol).toLocaleString()} TWD\n- 借款: ${Math.round(vLoan).toLocaleString()} TWD\n- 維持率: ${curMtn}%\n\n情境假設：市場下跌 ${dropPercent}%。\n\n分析結果需求：\n1. 新的擔保品市值\n2. 新的維持率\n3. 若要回到 166% 維持率，需補入多少現金 (數值為 ${Math.round(cashReq).toLocaleString()} TWD)\n4. 簡短風險建議`;
 
-        try { const txt = await callGemini(sys, usr); llmText.innerText = txt; }
-        catch (e) { llmText.innerText = `模擬分析 (本機模式):\n- 跌幅設定: ${dropPercent}%\n- 新維持率: ${newMtn.toFixed(2)}%\n- 建議補錢 (至166%): $${Math.round(cashReq).toLocaleString()}\n\n(連線失敗: ${e.message})`; }
+        try { const txt = await callGemini(sys, usr); llmText.innerText = txt;
+        }
+        catch (e) { llmText.innerText = `模擬分析 (本機模式):\n- 跌幅設定: ${dropPercent}%\n- 新維持率: ${newMtn.toFixed(2)}%\n- 建議補錢 (至166%): $${Math.round(cashReq).toLocaleString()}\n\n(連線失敗: ${e.message})`;
+        }
         finally { loader.classList.add('hidden'); btn.disabled = false; }
     };
-
     function showToast(msg, type) {
-        const div = document.createElement('div'); div.className = `p-3 mb-2 rounded shadow-lg text-white text-sm animate-bounce ${type==='error'?'bg-rose-600':(type==='info'?'bg-blue-600':'bg-emerald-600')}`;
+        const div = document.createElement('div');
+        div.className = `p-3 mb-2 rounded shadow-lg text-white text-sm animate-bounce ${type==='error'?'bg-rose-600':(type==='info'?'bg-blue-600':'bg-emerald-600')}`;
         div.innerText = msg; document.getElementById('toastContainer').appendChild(div); setTimeout(()=>div.remove(), 3000);
     }
 
-    // --- 新增授權邏輯 ---
-
-    // 授權處理函式
+    // Auth & Init
     window.handleAuthSubmit = () => {
         const inputEl = document.getElementById('authCodeInput');
         const errorEl = document.getElementById('authError');
         const code = inputEl.value.trim();
-
         errorEl.innerText = '';
         if (code === AUTH_CODE) {
-            localStorage.setItem('isAuthorized', 'true'); // 儲存成功狀態
+            localStorage.setItem('isAuthorized', 'true');
             document.getElementById('authModal').classList.add('opacity-0', 'pointer-events-none');
-            // 授權成功後，開始初始化應用程式
             initApp();
         } else {
             errorEl.innerText = '❌ 授權碼錯誤，請重新輸入。';
@@ -577,32 +600,25 @@
         }
     };
     
-    // 應用程式核心初始化函式 (原先分散在底部)
     async function initApp() {
-        initEls(); 
-        await initFirebase(); // Firebase 初始化必須在授權後
+        initEls();
+        await initFirebase(); 
         attachEvents();
-        window.calculate(); // 首次計算
+        window.calculate();
     }
 
-    // 檢查授權狀態
     function checkAuthStatus() {
         const authModal = document.getElementById('authModal');
         const isAuth = localStorage.getItem('isAuthorized') === 'true';
-
         if (isAuth) {
             authModal.classList.add('opacity-0', 'pointer-events-none');
             initApp();
         } else {
-            // 如果未授權，顯示模態框並阻止互動
             authModal.classList.remove('opacity-0', 'pointer-events-none');
         }
     }
 
-    // 頁面載入時開始檢查授權
     checkAuthStatus();
 </script>
 </body>
 </html>
-
-
